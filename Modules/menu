@@ -360,10 +360,10 @@ menu() {
 		menu_option_n 1 "Create user"
 		printf "                 "
 		menu_option 2 "Remove user"
-		menu_option_n 3 "Change password"
+		menu_option_n 3 "Editar password"
 		printf "             "
-		menu_option 4 "Expiration manager"
-		menu_option 5 "Account limit"
+		menu_option 4 "Expiracion manager"
+		menu_option 5 "Limite Usuarios"
 		
 		section "MONITORING"
 		menu_option_n 7 "Monitor users"
@@ -379,7 +379,7 @@ menu() {
 		menu_option 12 "Reboot system"
 		menu_option_n 13 "Server settings"
 		printf "             "
-		menu_option 14 "Remove script ⚠️"
+		menu_option 14 "Eliminar script ⚠️"
 
 		section "SETTINGS"
 		menu_option_n 15 "Connections"
