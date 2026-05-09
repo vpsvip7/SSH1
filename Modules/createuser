@@ -483,7 +483,7 @@ while true; do
 	echo ""
 
 	# Username (0 = Back, 00 = Exit to cancel)
-	printf "%b👤 Username:%b (0=Back 00=Exit) " "$(c ui_label)" "$(reset)"
+	printf "%b👤 USUARIO:%b (0=Back 00=Exit) " "$(c ui_label)" "$(reset)"
 	read -r username
 	username="${username//[[:space:]]/}"
 	[[ "$username" == "0" ]] && exit 0
@@ -512,7 +512,7 @@ while true; do
 	_default_limit="2"
 
 	# Password
-	printf "%b🔒 Password:%b %b[auto]%b  (Enter to generate)\n" "$(c ui_label)" "$(reset)" "$(c muted)" "$(reset)"
+	printf "%b🔒 CONTRASEÑA:%b %b[auto]%b  (Enter Para Generar)\n" "$(c ui_label)" "$(reset)" "$(c muted)" "$(reset)"
 	printf "%b> %b" "$(c ui_prompt)" "$(reset)"
 	read -r password
 	if [[ -z "$password" ]]; then
@@ -526,19 +526,19 @@ while true; do
 	fi
 
 	# Remark
-	printf "%b🔖 Remark:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_remark"
+	printf "%b🔖 Enter para continuar:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_remark"
 	read -r remarks
 	remarks="$(_trim "$remarks")"
 	[[ -z "$remarks" ]] && remarks="$_default_remark"
 
 	# Host / port
-	printf "%b🌍 SSH Host:%b [%s] " "$(c ui_label)" "$(reset)" "${_default_host:-}"
+	printf "%b🌍 Ip vps:%b [%s] " "$(c ui_label)" "$(reset)" "${_default_host:-}"
 	read -r ssh_host
 	ssh_host="$(_trim "$ssh_host")"
 	[[ -z "$ssh_host" ]] && ssh_host="$_default_host"
 	[[ -z "$ssh_host" ]] && ssh_host="N/A"
 
-	printf "%b🔌 SSH Port:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_port"
+	printf "%b🔌 Puerto VPS:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_port"
 	read -r ssh_port
 	ssh_port="$(_trim "$ssh_port")"
 	[[ -z "$ssh_port" ]] && ssh_port="$_default_port"
@@ -554,22 +554,22 @@ while true; do
 	fi
 
 	# Expiration + limit
-	printf "%b⏳ Expiration (days):%b [%s] " "$(c ui_label)" "$(reset)" "$_default_days"
+	printf "%b⏳ Fecha Expiracion (dias):%b [%s] " "$(c ui_label)" "$(reset)" "$_default_days"
 	read -r dias
 	dias="$(_trim "$dias")"
 	[[ -z "$dias" ]] && dias="$_default_days"
 	if ! _is_int "$dias" || [[ "$dias" -lt 1 ]]; then
-		msg_err "Expiration days must be a positive number."
+		msg_err "Expiracion dias escribe  un numero."
 		clear
 		continue
 	fi
 
-	printf "%b🔗 Connection limit:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_limit"
+	printf "%b🔗 Conecion limite:%b [%s] " "$(c ui_label)" "$(reset)" "$_default_limit"
 	read -r sshlimiter
 	sshlimiter="$(_trim "$sshlimiter")"
 	[[ -z "$sshlimiter" ]] && sshlimiter="$_default_limit"
 	if ! _is_int "$sshlimiter" || [[ "$sshlimiter" -lt 1 ]]; then
-		msg_err "Connection limit must be a positive number."
+		msg_err "Connecion limite en  numero ."
 		clear
 		continue
 	fi
@@ -603,7 +603,7 @@ while true; do
 	[[ -z "$gui" ]] && gui="$final"
 
 	hr
-	printf "%bProceed with creating the user? [Y/n]:%b " "$(c ui_prompt)" "$(reset)"
+	printf "%b Proceder a crear tu usuario? [Y/n]:%b " "$(c ui_prompt)" "$(reset)"
 	read -r proceed
 	[[ -z "$proceed" ]] && proceed="Y"
 	if [[ "$proceed" =~ ^[Nn]$ ]]; then
@@ -616,7 +616,7 @@ done
 # Create system user, then set password through the service (no `passwd` usage)
 useradd -e "$final" -M -s /bin/false "$username" >/dev/null 2>&1 || {
 	echo ""
-	msg_err "Failed to create user $username"
+	msg_err "Fallo al crear el usuario $username"
 	echo ""
 	exit 1
 }
@@ -624,7 +624,7 @@ if ! sshplus_set_system_password "$username" "$password"; then
 	# Keep DB/system consistent: if password set fails, delete the user and stop
 	userdel -f "$username" >/dev/null 2>&1 || true
 	echo ""
-	msg_err "Failed to set password for $username"
+	msg_err "Fallo el  password de $username"
 	echo ""
 	exit 1
 fi
@@ -650,19 +650,19 @@ show_pass_plain=0
 show_link=0
 _result_redraw() {
 	clear
-	title_line "SSH ACCOUNT CREATED"
+	title_line "CUENTA VPS CREADO"
 	echo ""
-	_print_kv_aligned "🌍" "Host:" "$ssh_host"
-	_print_kv_aligned "🔌" "Port:" "$ssh_port"
+	_print_kv_aligned "🌍" "Usuario:"  
+	"recargas.personal.com.ar:80@"$username":"$password"
 	_print_kv_aligned "👤" "Username:" "$username"
 	if [[ "$show_pass_plain" -eq 1 ]]; then
-		_print_kv_aligned "🔒" "Password:" "$password"
+		_print_kv_aligned  "Password:" "$password"
 	else
 		_print_kv_aligned "🔒" "Password:" "$(_mask_password "$password")"
 	fi
-	_print_kv_aligned "🔖" "Remark:" "$remarks"
-	_print_kv_aligned "⏳" "Expires in:" "${gui} (${dias}d)"
-	_print_kv_aligned "🔗" "Conn limit:" "$sshlimiter"
+	_print_kv_aligned "🔖" "Argentina:" "$remarks"
+	_print_kv_aligned "⏳" "VENCE EN:" "${gui} (${dias}d)"
+	_print_kv_aligned "🔗" "Limite:" "$sshlimiter"
 
 	echo ""
 	printf "%bImport link:%b " "$(c ui_label)" "$(reset)"
@@ -670,7 +670,7 @@ _result_redraw() {
 		if [[ -n "${import_link:-}" ]]; then
 			printf "%s\n" "$import_link"
 		else
-			msg_warn "Could not generate import link (missing base64/openssl)."
+			msg_warn "Could no generado import link (missing base64/openssl)."
 		fi
 	else
 		printf "%b[Press l to reveal]%b\n" "$(c muted)" "$(reset)"
@@ -700,7 +700,7 @@ while true; do
 done
 
 if [[ -e /etc/openvpn/server.conf ]]; then
-	printf "\n%b📦 Generate OpenVPN file now? [y/N]:%b " "$(c ui_prompt)" "$(reset)"
+	printf "\n%b📦 Generar OpenVPN file ? [y/N]:%b " "$(c ui_prompt)" "$(reset)"
 	read -r _gen_ovpn || _gen_ovpn=""
 	[[ -z "$_gen_ovpn" ]] && _gen_ovpn="N"
 	if [[ "$_gen_ovpn" =~ ^[Yy]$ ]]; then
