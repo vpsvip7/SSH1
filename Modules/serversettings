@@ -284,6 +284,7 @@ while true; do
 	menu_option 4 "Nombre de Server"
 	menu_option 5 "Privacidad (IP & banner logging)"
 	menu_option 6 "Auto-refresh intervalo minutos"
+ menu_option 7 "Ver Puertos Activos"
 	menu_option 0 "Volver Back"
 	menu_option 00 "SALIR ❌"
 	echo ""
