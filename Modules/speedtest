@@ -1,5 +1,5 @@
 #!/bin/bash
-# speedtest – test server network speed (was velocity)
+# speedtest – test Velocidad server (Ancho de Banda)
 
 if [[ -f "/etc/SSHPlus/colors" ]]; then
 	source /etc/SSHPlus/colors
@@ -62,7 +62,7 @@ show_progress() {
 }
 
 echo ""
-color_echo "   TESTING SERVER SPEED !" "green"
+color_echo "   TEST Ancho de Banda  !" "green"
 echo ""
 [[ -e $HOME/fim ]] && rm -f $HOME/fim
 ( run_speedtest; touch $HOME/fim ) &
@@ -75,14 +75,14 @@ lnk="N/A"
 if [[ "$lnk" == "SPEEDTEST_CLI_MISSING" ]]; then
 	msg_err "speedtest-cli is required but not installed."
 	if [[ "$(id -u)" -eq 0 ]]; then
-		color_echo "Attempting to install speedtest-cli..." "yellow"
+		color_echo "Atencion primero install speedtest-cli..." "yellow"
 		echo ""
 		if python3 -m pip install speedtest-cli 2>&1 || pip3 install speedtest-cli 2>&1; then
 			msg_ok "speedtest-cli installed. Run [09] SPEEDTEST again."
 		elif apt-get update -qq 2>/dev/null && apt-get install -y speedtest-cli 2>&1; then
 			msg_ok "speedtest-cli installed (apt). Run [09] SPEEDTEST again."
 		else
-			msg_err "Auto-install failed. Errors shown above."
+			msg_err "Auto-install failed. Error shown above."
 			color_echo "Install manually:  pip3 install speedtest-cli   or   apt install speedtest-cli" "cyan"
 		fi
 	else
