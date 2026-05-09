@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# SSH Plus Manager – modern installer
+# SSH Plus Manager – moderno installer
 # -----------------------------------
 # Flags:
 #   --yes, -y         Non-interactive, assume safe defaults
