@@ -11,7 +11,7 @@
 #   --timezone TZ     Desired timezone (e.g. Asia/Tehran, used if --serversettings)
 #   --no-upgrade      Skip apt upgrade (only apt update + deps)
 
-_REPO_URL="https://raw.githubusercontent.com/namnamir/SSH-Plus-Manager/main"
+_REPO_URL="https://raw.githubusercontent.com/vpsvip7/SSH1/main"
 _SCRIPT_DIR=""
 # Try to detect script directory (works when run from file, not from curl pipe)
 # When run via curl pipe, $0 is /dev/fd/63 or similar, so skip detection
@@ -167,9 +167,9 @@ step_warn() { _msg_warn "$1"; log "WARN: $1"; }
 step_err()  { _msg_err "$1";  log "ERR: $1"; }
 info()      { _msg_info "$1"; log "INFO: $1"; }
 
-# -----------------------------------------------------------------------------
+# ----------------------------------------------------------------
 # Preflight checks
-# -----------------------------------------------------------------------------
+# ---------------------------------------------------------------
 require_root() {
 	if [[ "$(id -u)" -ne 0 ]]; then
 		step_err "This installer must be run as root."
@@ -251,9 +251,9 @@ print_preflight() {
 	preflight_required_tools
 }
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------
 # Dependencies
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------
 APT_AVAILABLE=0
 if command -v apt-get >/dev/null 2>&1; then
 	APT_AVAILABLE=1
@@ -261,7 +261,7 @@ fi
 
 DEPS_INSTALLER=(curl wget ca-certificates gnupg unzip tar)
 DEPS_RUNTIME=(
-	wget curl bc screen nano unzip zip lsof net-tools dos2unix nload jq figlet
+	wget curl bc screen nano  unzip zip lsof net-tools dos2unix nload jq figlet
 	python3 python3-pip speedtest-cli iproute2 cron
 )
 DEPS_SERVER_SETTINGS=(systemd-sysv tzdata)
@@ -287,7 +287,7 @@ check_deps() {
 install_deps() {
 	[[ ${#MISSING_DEPS[@]} -eq 0 ]] && return 0
 	if [[ "$APT_AVAILABLE" -ne 1 ]]; then
-		step_err "apt is not available. Install missing tools manually: ${MISSING_DEPS[*]}"
+		step_err "apt  no disponibleble. Instalar  tools manual: ${MISSING_DEPS[*]}"
 		exit 1
 	fi
 	_msg_info "Installing missing dependencies…"
@@ -306,9 +306,9 @@ install_deps() {
 	fi
 }
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------
 # Install plan
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------
 print_plan() {
 	printf "\nPlan\n"
 	printf "• Install to: /bin (scripts) and /etc/SSHPlus (config/assets)\n"
@@ -322,9 +322,9 @@ print_plan() {
 	fi
 }
 
-# -----------------------------------------------------------------------------
+# --------------------------------------------------------------------
 # Helper: prompt yes/no (returns 0=yes, 1=no)
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------
 ask_yes_no() {
 	local prompt="$1" default="${2:-N}" ans
 	if [[ "$YES" -eq 1 ]]; then
@@ -336,9 +336,9 @@ ask_yes_no() {
 	[[ "$ans" =~ ^[Yy]$ ]] && return 0 || return 1
 }
 
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------
 # Core install: key download, Install/list, DB setup, launcher
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------
 _lnk=$(echo 'z1:y#x.5s0ul&p4hs$s.0a72d*n-e!v89e032:3r' | sed -e 's/[^a-z.]//ig' | rev)
 _Ink=$(echo '/3×u3#s87r/l32o4×c1a×l1/83×l24×i0b×' | sed -e 's/[^a-z/]//ig')
 _1nk=$(echo '/3×u3#s×87r/83×l2×4×i0b×' | sed -e 's/[^a-z/]//ig')
@@ -463,9 +463,9 @@ apply_serversettings() {
 	fi
 }
 
-# -----------------------------------------------------------------------------
+# -----------------------------------------------------------------
 # Main
-# -----------------------------------------------------------------------------
+# ------------------------------------------------------------------
 main() {
 	cd "${HOME:-/root}" || cd / || true
 
