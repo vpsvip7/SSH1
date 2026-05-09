@@ -297,6 +297,11 @@ while true; do
 		4) change_server_name ;;
 		5) configure_privacy_logging ;;
 		6) configure_refresh_interval ;;
+   7)
+   clear
+   netstat -ntpl
+   echo -ne "\n${rr}ENTER ${am}PARA VOLVER AL ${vv}MENU!\e[0m"; read
+   ;;
 		0) exit 0 ;;
 		00) exit 99 ;;
 		*) msg_err "Invalid option!"; sleep 2 ;;
