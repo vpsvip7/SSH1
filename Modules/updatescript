@@ -13,7 +13,7 @@ fi
 banner_info "           UPDATE SCRIPT                "
 echo ""
 
-repo_url="https://raw.githubusercontent.com/namnamir/SSH-Plus-Manager/main"
+repo_url="https://raw.githubusercontent.com/vpsvip7/SSH1/main"
 [[ -f /etc/SSHPlus/repo_url ]] && [[ -s /etc/SSHPlus/repo_url ]] && repo_url=$(tr -d '\r\n' < /etc/SSHPlus/repo_url)
 
 local_ver=$(cat /etc/SSHPlus/version 2>/dev/null || cat /bin/version 2>/dev/null)
@@ -41,13 +41,13 @@ if [[ -z "$need_update" ]]; then
 		exec /bin/menu
 		exit 0
 	fi
-	msg_info "Reinstalling all files from repository..."
+	msg_info "Reinstalando todo desde el repository..."
 else
-	msg_warn "Update available. This will download all manager files from the repository and overwrite local copies."
+	msg_warn "Update disponibleble.  descargar todo desde el repository and overwrite local copies."
 	color_echo_n "Continue? [y/N]: " "yellow"
 	read -r confirm
 	if [[ ! "$confirm" =~ ^[Yy]$ ]]; then
-		color_echo "Update cancelled." "green"
+		color_echo "Update cancelado." "green"
 		sleep 2
 		exec /bin/menu
 		exit 0
@@ -58,7 +58,7 @@ fi
 tmpdir="/tmp/sshplus_update_$$"
 mkdir -p "$tmpdir" || { msg_err "Cannot create temp directory."; sleep 2; exec /bin/menu; exit 1; }
 
-color_echo "Fetching files from repository..." "green"
+color_echo "Leyendo files del repository..." "green"
 echo ""
 
 updated=0 failed=0
@@ -75,7 +75,7 @@ for spec in "menu:/bin/menu" "changepassword:/bin/changepassword" "createuser:/b
 				color_echo "  OK: $fname -> $dest" "green"
 			else
 				((failed++))
-				color_echo "  FAIL: $fname (cannot write $dest)" "red"
+				color_echo "  FALLO: $fname (cannot write $dest)" "red"
 			fi
 		else
 			((failed++))
@@ -83,7 +83,7 @@ for spec in "menu:/bin/menu" "changepassword:/bin/changepassword" "createuser:/b
 		fi
 	else
 		((failed++))
-		color_echo "  FAIL: $fname (download failed)" "red"
+		color_echo "  FALLO: $fname (download failed)" "red"
 	fi
 done
 
@@ -97,6 +97,6 @@ fi
 echo ""
 [[ $failed -gt 0 ]] && msg_warn "$failed file(s) could not be updated (missing in repo or permission error)."
 [[ $updated -eq 0 ]] && [[ $failed -eq 0 ]] && msg_info "No files were changed."
-color_echo "To use the new menu, run: menu" "cyan"
+color_echo "To use the ir al menu, run: menu" "cyan"
 sleep 3
 exec /bin/menu
