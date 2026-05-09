@@ -15,22 +15,22 @@ PRIVACY_CONF="/etc/SSHPlus/privacy.conf"
 
 change_root_password() {
 	clear
-	banner_info "         CHANGE ROOT PASSWORD           "
+	banner_info "         EDITAR CONTRASEÑA ROOT           "
 	echo ""
-	color_echo_n "Enter new root password: " "yellow"
+	color_echo_n "Enter nueva contraseña root: " "yellow"
 	read -r -s new_pass
 	echo ""
-	color_echo_n "Confirm new root password: " "yellow"
+	color_echo_n "Confirmar nueva contraseña root: " "yellow"
 	read -r -s confirm_pass
 	echo ""
 
 	if [[ -z "$new_pass" ]]; then
-		msg_err "Password cannot be empty!"
+		msg_err "Password esta vacio empty!"
 		sleep 2
 		return 1
 	fi
 	if [[ "$new_pass" != "$confirm_pass" ]]; then
-		msg_err "Passwords do not match!"
+		msg_err "Passwords no escribiste nada match!"
 		sleep 2
 		return 1
 	fi
@@ -143,7 +143,7 @@ _suggest_server_line() {
 
 change_server_name() {
 	clear
-	banner_info "             SERVER NAME               "
+	banner_info "            NOMBRE SERVER               "
 	echo ""
 	local current
 	current=$(hostname 2>/dev/null || echo "unknown")
@@ -167,7 +167,7 @@ change_server_name() {
 		color_echo "  ${intro}" "white"
 	fi
 	echo ""
-	color_echo_n "Server name " "green"
+	color_echo_n "Nombre Server  " "green"
 	color_echo_n "[${suggested}]: " "yellow"
 	read -r new_name
 	[[ -z "$new_name" ]] && new_name="$suggested"
@@ -194,14 +194,14 @@ change_server_name() {
 		if hostnamectl set-hostname "$new_name" >/dev/null 2>&1; then
 			msg_ok "Server name set to $new_name"
 		else
-			msg_err "Failed to set server name. Run as root."
+			msg_err "Faillo al editar nombre server . Run as root."
 		fi
 	else
 		echo "$new_name" >/etc/hostname 2>/dev/null || true
 		if hostname "$new_name" >/dev/null 2>&1; then
 			msg_ok "Server name set to $new_name"
 		else
-			msg_err "Failed to set server name. Run as root."
+			msg_err "Faillo al editar  nombre server . Run as root."
 		fi
 	fi
 	sleep 2
@@ -209,7 +209,7 @@ change_server_name() {
 
 configure_privacy_logging() {
 	clear
-	banner_info "        PRIVACY & SESSION LOGS         "
+	banner_info "        PRIVACIDAD & SESSION LOGS         "
 	echo ""
 	local current="enabled"
 	if [[ -f "$PRIVACY_CONF" ]]; then
@@ -239,7 +239,7 @@ configure_privacy_logging() {
 
 configure_refresh_interval() {
 	clear
-	banner_info "      AUTO-REFRESH INTERVAL            "
+	banner_info "      AUTO-REFRESH INTERVALO            "
 	echo ""
 	local config_file="/etc/SSHPlus/refresh_interval"
 	local current_interval=30
@@ -278,14 +278,14 @@ while true; do
 	clear
 	banner_info "             SERVER SETTINGS           "
 	echo ""
-	menu_option 1 "Change root password"
-	menu_option 2 "Datetime & timezone"
+	menu_option 1 "EDITAR CONTRASEÑA root"
+	menu_option 2 "Zona horaria & timezone"
 	menu_option 3 "Keyboard layout"
-	menu_option 4 "Server name"
-	menu_option 5 "Privacy (IP & banner logging)"
-	menu_option 6 "Auto-refresh interval"
-	menu_option 0 "Back"
-	menu_option 00 "Exit"
+	menu_option 4 "Nombre de Server"
+	menu_option 5 "Privacidad (IP & banner logging)"
+	menu_option 6 "Auto-refresh intervalo minutos"
+	menu_option 0 "Volver Back"
+	menu_option 00 "SALIR ❌"
 	echo ""
 	color_echo_n "Select option [0/00]: " "green"
 	read -r opt
