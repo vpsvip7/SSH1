@@ -66,259 +66,15 @@ fi
 		done
 	}
 
-	inst_sqd() {
-		if netstat -nltp | grep 'squid' 1>/dev/null 2>/dev/null; then
-			banner_info_red "            REMOVE SQUID PROXY              "
-			echo ""
-			color_echo_n "DO YOU REALLY WANT TO REMOVE SQUID " "green"
-			color_echo_n "? " "red"
-			color_echo_n "[y/n]: " "yellow"
-			read resp
-			[[ "$resp" = 'y' ]] && {
-				echo ""
-				color_echo "REMOVING THE SQUID PROXY !" "green"
-				echo ""
-				rem_sqd() {
-					[[ -d "/etc/squid" ]] && {
-						apt-get remove squid -y >/dev/null 2>&1
-						apt-get purge squid -y >/dev/null 2>&1
-						rm -rf /etc/squid >/dev/null 2>&1
-					}
-					[[ -d "/etc/squid3" ]] && {
-						apt-get remove squid3 -y >/dev/null 2>&1
-						apt-get purge squid3 -y >/dev/null 2>&1
-						rm -rf /etc/squid3 >/dev/null 2>&1
-					}
-				}
-				fun_bar 'rem_sqd'
-				echo ""
-				msg_ok "SQUID REMOVED SUCCESSFULLY !"
-				sleep 2
-				clear
-				fun_connections
-			} || {
-				echo ""
-				msg_err "Returning..."
-				sleep 2
-				clear
-				fun_connections
-			}
-		else
-			clear
-			banner_info "              SQUID INSTALLER                "
-			echo ""
-			IP=$(wget -qO- ipv4.icanhazip.com)
-			echo -ne "\033[1;32mTO CONTINUE CONFIRM YOUR IP: \033[1;37m"
-			read -e -i $IP ipdovps
-			[[ -z "$ipdovps" ]] && {
-				echo ""
-				msg_err "Invalid IP"
-				echo ""
-				read -p "Enter your IP: " IP
-			}
-			echo ""
-			color_echo_n "WHICH PORTS DO YOU WANT TO USE IN THE SQUID " "yellow"
-			color_echo "?" "red"
-			echo ""
-			msg_warn "[!] SET THE PORTS IN SEQUENCE EX: 80 8080 8799"
-			echo ""
-			color_echo_n "INFORM THE PORTS: " "green"
-			read portass
-			[[ -z "$portass" ]] && {
-				echo ""
-				msg_err "Invalid port!"
-				sleep 3
-				fun_connections
-			}
-			for porta in $(echo -e $portass); do
-				verif_ptrs $porta
-			done
-			echo ""
-			color_echo "INSTALLING SQUID PROXY" "green"
-			echo ""
-			fun_bar 'apt-get update -y' 'instsqd'
-			if [[ -d "/etc/squid/" ]]; then
-				var_sqd="/etc/squid/squid.conf"
-				var_pay="/etc/squid/payload.txt"
-			elif [[ -d "/etc/squid3/" ]]; then
-				var_sqd="/etc/squid3/squid.conf"
-				var_pay="/etc/squid3/payload.txt"
-			else
-				echo ""
-				msg_err "ERROR! CORRUPTED SQUID PROXY"
-				sleep 2
-				fun_connections
-			fi
-			cat <<-EOF >$var_pay
-				.claro.com.br/
-				.claro.com.sv/
-				.facebook.net/
-				.netclaro.com.br/
-				.speedtest.net/
-				.tim.com.br/
-				.vivo.com.br/
-				.oi.com.br/
-			EOF
-			cat <<-EOF >$var_sqd
-				acl url1 dstdomain -i 127.0.0.1
-				acl url2 dstdomain -i localhost
-				acl url3 dstdomain -i $ipdovps
-				acl url4 dstdomain -i /SSHPLUS?
-				acl payload url_regex -i "$var_pay"
-				acl all src 0.0.0.0/0
-
-				http_access allow url1
-				http_access allow url2
-				http_access allow url3
-				http_access allow url4
-				http_access allow payload
-				http_access deny all
-
-				#Portas
-			EOF
-			for Pts in $(echo -e $portass); do
-				echo -e "http_port $Pts" >>$var_sqd
-				[[ -f "/usr/sbin/ufw" ]] && ufw allow $Pts/tcp
-			done
-			cat <<-EOF >>$var_sqd
-				#Nome squid
-				visible_hostname vpnunderground.com
-				via off
-				forwarded_for off
-				pipeline_prefetch off
-			EOF
-			sqd_conf() {
-				[[ -d "/etc/squid/" ]] && {
-					service ssh restart
-					/etc/init.d/squid start
-					service squid restart
-				}
-				[[ -d "/etc/squid3/" ]] && {
-					service ssh restart
-					/etc/init.d/squid3 start
-					service squid3 restart
-				}
-			}
-			echo ""
-			color_echo "CONFIGURING SQUID PROXY" "green"
-			echo ""
-			fun_bar 'sqd_conf'
-			echo ""
-			msg_ok "SQUID SUCCESSFULLY INSTALLED!"
-			sleep 2.5s
-			fun_connections
-		fi
-	}
-
-	addpt_sqd() {
-		banner_info "         ADD PORT TO SQUID         "
-		echo -e "\n\033[1;33mPORTS IN USE: \033[1;32m$sqdp\n"
-		if [[ -f "/etc/squid/squid.conf" ]]; then
-			var_sqd="/etc/squid/squid.conf"
-		elif [[ -f "/etc/squid3/squid.conf" ]]; then
-			var_sqd="/etc/squid3/squid.conf"
-		else
-			echo -e "\n\033[1;31mSQUID IS NOT INSTALLED!\033[0m"
-			echo -e "\n\033[1;31mReturning...\033[0m"
-			sleep 2
-			clear
-			fun_squid
-		fi
-		echo -ne "\033[1;32mWHICH PORT YOU WANT TO ADD \033[1;33m?\033[1;37m "
-		read pt
-		[[ -z "$pt" ]] && {
-			echo ""
-			msg_err "Invalid port!"
-			sleep 2
-			clear
-			fun_connections
-		}
-		verif_ptrs $pt
-		echo ""
-		color_echo "ADDING PORT TO SQUID!" "green"
-		echo ""
-		sed -i "s/#Portas/#Portas\nhttp_port $pt/g" $var_sqd
-		fun_bar 'sleep 2'
-		echo ""
-		color_echo "RESTARTING SQUID!" "green"
-		echo ""
-		fun_bar 'service squid restart' 'service squid3 restart'
-		echo ""
-		msg_ok "SUCCESSFULLY ADDED PORT!"
-		sleep 3
-		clear
-		fun_squid
-	}
-
-	rempt_sqd() {
-		banner_info_red "        REMOVE SQUID PORT        "
-		echo -e "\n\033[1;33mPORTS IN USE: \033[1;32m$sqdp\n"
-		if [[ -f "/etc/squid/squid.conf" ]]; then
-			var_sqd="/etc/squid/squid.conf"
-		elif [[ -f "/etc/squid3/squid.conf" ]]; then
-			var_sqd="/etc/squid3/squid.conf"
-		else
-			echo -e "\n\033[1;31mSQUID IS NOT INSTALLED!\033[0m"
-			echo -e "\n\033[1;31mReturning...\033[0m"
-			sleep 2
-			clear
-			fun_squid
-		fi
-		color_echo_n "WHICH PORT YOU WANT TO REMOVE " "green"
-		color_echo_n "?" "yellow"
-		color_echo_n " " "white"
-		read pt
-		[[ -z "$pt" ]] && {
-			echo ""
-			msg_err "Invalid port!"
-			sleep 2
-			clear
-			fun_connections
-		}
-		if grep -E "$pt" $var_sqd >/dev/null 2>&1; then
-			echo ""
-			color_echo "REMOVING SQUID PORT!" "green"
-			echo ""
-			sed -i "/http_port $pt/d" $var_sqd
-			fun_bar 'sleep 3'
-			echo ""
-		color_echo "RESTARTING SQUID!" "green"
-			echo ""
-			fun_bar 'service squid restart' 'service squid3 restart'
-			echo ""
-			msg_ok "SUCCESSFULLY REMOVED PORT!"
-			sleep 3.5s
-			clear
-			fun_squid
-		else
-			echo ""
-			color_echo_n "PORT " "red"
-			color_echo_n "$pt " "green"
-			color_echo "NOT FOUND!" "red"
-			sleep 3.5s
-			clear
-			fun_squid
-		fi
-	}
-
 	fun_squid() {
-		[[ "$(netstat -nplt | grep -c 'squid')" = "0" ]] && inst_sqd
-		banner_info "          MANAGE SQUID PROXY           "
-		[[ "$(netstat -nplt | grep -c 'squid')" != "0" ]] && {
-			sqdp=$(netstat -nplt | grep 'squid' | awk -F ":" {'print $4'} | xargs)
-			echo -e "\n\033[1;33mPORTS\033[1;37m: \033[1;32m$sqdp"
-			VarSqdOn="REMOVE SQUID PROXY"
-		} || {
-			VarSqdOn="INSTALL SQUID PROXY"
-		}
 		echo ""
 		# Use menu_option function for menu items
-		menu_option "1" "$VarSqdOn" "red" "yellow"
-		menu_option "2" "ADD PORT" "red" "yellow"
-		menu_option "3" "REMOVE PORT" "red" "yellow"
-		menu_option "0" "BACK" "red" "yellow"
+		menu_option "1" "INSTALAR BAD" "red" "yellow"
+		menu_option "2" "ACTIVAR BAD" "red" "yellow"
+		menu_option "3" "Menu inicial" "red" "yellow"
+		menu_option "0" "Volver ATRAS " "red" "yellow"
 		echo ""
-		color_echo_n "PLEASE SELECT FROM OPTIONS " "green"
+		color_echo_n " Elegir Una OPCIONS " "green"
 		color_echo_n "" "yellow"
 		color_echo_n "" "red"
 		color_echo_n "" "white"
@@ -326,13 +82,13 @@ fi
 		clear
 		case $x in
 		1 | 01)
-			inst_sqd
+			bash <(wget -qO- https://raw.githubusercontent.com/vpsvip7/SSH1/refs/heads/main/Modules/installbad.sh)
 			;;
 		2 | 02)
-			addpt_sqd
+			bad
 			;;
 		3 | 03)
-			rempt_sqd
+			menu
 			;;
 		0 | 00)
 			echo -e "\033[1;31mReturning...\033[0m"
@@ -868,9 +624,9 @@ fi
 			echo ""
 			# Use color codes for main connection menu
 			echo -e "${red_code}[${cyan_code}01${red_code}] ${white_code}• ${yellow_code}OPENSSH $sts6${reset_code}"
-			echo -e "${red_code}[${cyan_code}02${red_code}] ${white_code}• ${yellow_code}SQUID PROXY $sts1${reset_code}"
+			echo -e "${red_code}[${cyan_code}02${red_code}] ${white_code}• ${yellow_code}BAD VPN 7300 $sts1${reset_code}"
 			echo -e "${red_code}[${cyan_code}03${red_code}] ${white_code}• ${yellow_code}DROPBEAR $sts2${reset_code}"
-			echo -e "${red_code}[${cyan_code}04${red_code}] ${white_code}• ${yellow_code}Install_SO $sts5${reset_code}"
+			echo -e "${red_code}[${cyan_code}04${red_code}] ${white_code}• ${yellow_code}REinstall_SO $sts5${reset_code}"
 			echo -e "${red_code}[${cyan_code}05${red_code}] ${white_code}• ${yellow_code}SOCKS PROXY $sts4${reset_code}"
 			echo -e "${red_code}[${cyan_code}06${red_code}] ${white_code}• ${yellow_code}SSL+PY Websocket $sts3${reset_code}"
 			echo -e "${red_code}[${cyan_code}07${red_code}] ${white_code}• ${yellow_code}WS_EPRO $sts7${reset_code}"
