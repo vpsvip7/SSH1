@@ -328,25 +328,25 @@ menu() {
 		[[ -z "$_header_right" ]] && _header_right="${HOSTNAME:-}"
 		[[ -z "$_header_right" ]] && _header_right="$(cat /etc/hostname 2>/dev/null || true)"
 		[[ -z "$_header_right" ]] && _header_right="—"
-		header_line "SSH PLUS MANAGER v${_ver_local}" "$_header_right"
+		header_line "SSH V7 v${_ver_local}" "$_header_right"
 		hr
 		echo ""
 
 		# Row 1: CPU / RAM / Disk % (colored by threshold) | sys traffic; left pad to 52 bytes
 		_left1_len=$(( 15 + ${#_cpu_pct} + ${#_ram_pct} + ${#_disk_pct} ))
 		_pad1=$(( 50 - _left1_len )); [[ $_pad1 -lt 1 ]] && _pad1=1
-		_right1="📶 ${_sys_traffic_str}"
-		printf "%b🧠 %b%s%%%b  %b🧩 %b%s%%%b  %b💾 %b%s%%%b%*s%b%s%b\n" \
+		_right1="📶Trafico ${_sys_traffic_str}"
+		printf "%b cpu🧠 %b%s%%%b  %b ram🧩 %b%s%%%b  %b💾 %b%s%%%b%*s%b%s%b\n" \
 			"$(c ui_value)" "$(_pct_style "$_cpu_pct")" "$_cpu_pct" "$(reset)" \
 			"$(c ui_value)" "$(_pct_style "$_ram_pct")" "$_ram_pct" "$(reset)" \
 			"$(c ui_value)" "$(_pct_style "$_disk_pct")" "$_disk_pct" "$(reset)" \
 			"$_pad1" "" "$(c ui_value)" "$_right1" "$(reset)"
 		# Row 2: IP | uptime
-		_left2="🌍 ${_ipv4}  |  ${_ipv6}"
+		_left2=""
 		_right2="⏳ ${_uptime_short}"
 		_info_row "$_left2" "$_right2"
 		# Row 3: SSH port | users (● active ● inactive)
-		_left3="🔌 ${_ports}"
+		_left3="🔌"
 		_right3="👩🏻 ${_tuser}  ($(status_dot active) ${_onli} $(status_dot inactive) ${_n_offline})"
 		_info_row "$_left3" "$_right3"
 		echo ""
