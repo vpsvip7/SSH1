@@ -324,9 +324,9 @@ menu() {
 		clear
 
 		# Header: title left, hostname right (fallback if hostname empty)
-		_header_right="${_hostname_short:-$_hostname}"
-		[[ -z "$_header_right" ]] && _header_right="${HOSTNAME:-}"
-		[[ -z "$_header_right" ]] && _header_right="$(cat /etc/hostname 2>/dev/null || true)"
+		_header_right="wep"
+		[[ -z "$_header_right" ]] && _header_right="h"
+		[[ -z "$_header_right" ]] && _header_right="(apt upd 2>/dev/null || true)"
 		[[ -z "$_header_right" ]] && _header_right="—"
 		header_line "SSH V7 v${_ver_local}" "$_header_right"
 		hr
@@ -336,18 +336,18 @@ menu() {
 		_left1_len=$(( 15 + ${#_cpu_pct} + ${#_ram_pct} + ${#_disk_pct} ))
 		_pad1=$(( 50 - _left1_len )); [[ $_pad1 -lt 1 ]] && _pad1=1
 		_right1="📶Trafico ${_sys_traffic_str}"
-		printf "%b cpu🧠 %b%s%%%b  %b ram🧩 %b%s%%%b  %b💾 %b%s%%%b%*s%b%s%b\n" \
+		printf "%b cpu🧠 %b%s%%%b %b ram🧩 %b%s%%%b disco: %b💾 %b%s%%%b%*s%b%s%b\n" \
 			"$(c ui_value)" "$(_pct_style "$_cpu_pct")" "$_cpu_pct" "$(reset)" \
 			"$(c ui_value)" "$(_pct_style "$_ram_pct")" "$_ram_pct" "$(reset)" \
 			"$(c ui_value)" "$(_pct_style "$_disk_pct")" "$_disk_pct" "$(reset)" \
 			"$_pad1" "" "$(c ui_value)" "$_right1" "$(reset)"
 		# Row 2: IP | uptime
 		_left2=""
-		_right2="⏳ ${_uptime_short}"
+		_right2="SSH V7 "
 		_info_row "$_left2" "$_right2"
 		# Row 3: SSH port | users (● active ● inactive)
-		_left3="🔌"
-		_right3="👩🏻 ${_tuser}  ($(status_dot active) ${_onli} $(status_dot inactive) ${_n_offline})"
+		_left3=""
+		_right3="👩🏻User ${_tuser}  (ON$(status_dot active)  ${_onli} OFF$(status_dot inactive) ${_n_offline})"
 		_info_row "$_left3" "$_right3"
 		echo ""
 
@@ -367,15 +367,15 @@ menu() {
 		
 		section "MONITOR"
 		menu_option_n 7 "MONITOR USER👁👀"
-		printf "           "
+		printf "        "
 		menu_option 8 "Speedtest📀"
 		menu_option_n 9 "VPS trafico📡"
 		printf "           "
 		menu_option 10 "VPS info🔭"
 
 		section "SYSTEM"
-		menu_option_n 11 "Refrescar Servis🌀"
-		printf "         "
+		menu_option_n 11 "Refrescar RAM🌀"
+		printf "       "
 		menu_option 12 "Reboot system♻"
 		menu_option_n 13 "VPS AJUSTES"
 		printf "          "
@@ -383,16 +383,16 @@ menu() {
 
 		section "AJUSTES"
 		menu_option_n 15 "MENU INSTALADOR"
-		printf "              "
+		printf "           "
 		menu_option 16 "Banner"
 		menu_option_n 17 "Backup user💾"
-		printf "               "
+		printf "           "
 		menu_option 18 "AutoINICIO🏁"
 		menu_option_n 19 "Update script"
 
 		echo ""
 		echo ""
-		printf "%b[00/q/Q] Quit%b\n" "$(c ui_menu_num)" "$(reset)"
+		printf "%b[00/q/Q] SALIR %b\n" "$(c ui_menu_num)" "$(reset)"
 		hr
 		echo ""
 		prompt "Select option: "
@@ -409,19 +409,23 @@ menu() {
 		5 | 05) clear; changelimit; _ret=$?; [[ $_ret -eq 99 ]] && exit 0; sleep 3 ;;
 		7 | 07) clear; sshmonitor ;;
 		8 | 08) clear; speedtest ;;
-		9 | 09) vpstraffic ;;
-		10) clear; vpsinfo ;;
+		9 | 09) clear; vpstraffic; sleep 5 ;;
+		10) clear; vpsinfo; sleep 10 ;;
 		11) clear; restartservices; sleep 5 ;;
 		12) clear; rebootsystem ;;
 		13) clear; serversettings; sleep 5 ;;
 		14) clear; exec removescript ;;
 		15) connections; exit 0 ;;
 		16) clear; bannersetup ;;
-		17) clear; userbackup ;;
+		17) clear;
+ wget https://raw.githubusercontent.com/vpsvip7/1s/refs/heads/main/userbackup && chmod +x userbackup && ./userbackup
+ msg -ne " Enter Para Continuar" && read enter
+ menu
+  ;;
 		18) autorun ;;
 		19) updatescript ;;
 		0 | 00 | q | Q)
-			printf "%b%s%b\n" "$(c ui_danger)" "Exiting..." "$(reset)"
+			printf "%b%s%b\n" "$(c ui_danger)" "CHAUUU 🖐🏻😎..." "$(reset)"
 			sleep 2
 			clear
 			exit 0
