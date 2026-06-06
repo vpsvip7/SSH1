@@ -92,7 +92,7 @@ _status_for_days() {
   if [[ "$ymd" != "never" ]] && [[ "$days" -le 0 ]]; then
     echo "expired"
   elif [[ "$ymd" != "never" ]] && [[ "$days" -le 7 ]]; then
-    echo "expiring"
+    echo "Alerta"
   else
     echo "valid"
   fi
@@ -105,9 +105,9 @@ _status_badge() {
     return 0
   fi
   case "$s" in
-    expired)  printf "%b⛔ expired%b"   "$(c ui_danger)" "$(reset)" ;;
-    expiring) printf "%b⚠ expiring%b"  "$(c ui_warn)" "$(reset)" ;;
-    *)        printf "%b✅ valid%b"     "$(c ui_ok)" "$(reset)" ;;
+    Vencio)  printf "%b⛔ Vencio%b"  "$(c ui_danger)" "$(reset)" ;;
+    Alerta) printf "%bAlerta🕐%b" "$(c ui_warn)" "$(reset)" ;;
+    *)  printf "%b🔵 valido%b"  "$(c ui_ok)" "$(reset)" ;;
   esac
 }
 
@@ -140,8 +140,8 @@ _read_users_db() {
 _apply_filter() {
   local filter="$1"
   case "$filter" in
-    expired)  awk -F'|' '$6=="expired"' ;;
-    expiring) awk -F'|' '($6=="expiring")' ;;
+    Vencio)  awk -F'|' '$6=="Vencio"' ;;
+    Alerta) awk -F'|' '($6=="Alerta")' ;;
     *)        cat ;;
   esac
 }
@@ -156,7 +156,7 @@ _apply_sort() {
 }
 
 _counts() {
-  # stdin records; outputs: total valid expiring expired
+  # stdin records; outputs: total valid Alerta Vencidos
   awk -F'|' '
     {t++}
     $6=="valid"{v++}
@@ -174,11 +174,11 @@ _print_screen() {
   read -r total v e x <<<"$(_counts <"$tmp")"
 
   clear
-  title_line "EXPIRATION MANAGER"
-  printf "\n👤 %s users   ✅ %s valid   ⚠ %s expiring≤7d   ⛔ %s expired\n" "$total" "$v" "$e" "$x"
+  title_line "EXPIRACION MANAGER"
+  printf "\n %s User✅ %s valido %s Alerta ≤7d ⛔ %s Vencio\n" "$total" "$v" "$e" "$x"
   printf "Filter: %s  Sort: %s\n\n" "$filter" "$sort_label"
 
-  printf "%b%-10s %-12s %-10s %s%b\n" "$(c ui_frame)" "USER" "EXPIRES" "REMAINING" "STATUS" "$(reset)"
+  printf "%b%-10s %-12s %-10s %s%b\n" "$(c ui_frame)" "USER" "FECHA" "RESTAN" "ESTADO" "$(reset)"
   hr
 
   if [[ "$total" -eq 0 ]]; then
@@ -347,17 +347,17 @@ sort_state="remaining↑"
 while true; do
   _print_screen "$filter" "$sort" "$sort_state"
   printf "Select user [1-N] or command:\n"
-  printf "  %b[e]%b expired only   %b[x]%b expiring≤7d   %b[a]%b all\n" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)"
-  printf "  %b[s]%b sort           %b[D]%b delete expired  %b[q]%b back\n" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)"
+  printf "  %b[2]%b Vencidos only   %b[3]%b Vence Pronto ≤7d   %b \n [1]%b Todos" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)"
+  printf "  %b[s]%b sort       %b[4]%b 🔴BORRAR VENCIDOS  %b  [0]%b MENU🏠\n" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)" "$(c ui_menu_num)" "$(reset)"
   printf "%b>%b " "$(c ui_prompt)" "$(reset)"
   read -r inp || inp=""
   inp="$(_trim "$inp")"
   [[ -z "$inp" ]] && continue
   case "$inp" in
     q|Q|0) exit 0 ;;
-    a|A) filter="all" ;;
-    e|E) filter="expired" ;;
-    x|X) filter="expiring" ;;
+    a|1) filter="all" ;;
+    e|2) filter="expired" ;;
+    x|3) filter="expiring" ;;
     s|S)
       if [[ "$sort" == "remaining" ]]; then
         sort="username"; sort_state="username↑"
@@ -367,7 +367,7 @@ while true; do
         sort="remaining"; sort_state="remaining↑"
       fi
       ;;
-    D)
+    4)
       _delete_all_expired
       printf "\n%bPress Enter…%b" "$(c ui_prompt)" "$(reset)"; read -r _ || true
       ;;
